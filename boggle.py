@@ -19,26 +19,48 @@ class BoggleGUI:
 
     def __init__(self) -> None:
         self._taken_word_list = []
-        self._word_list = ['AB', 'BA', 'DE', 'RQ','EI']
+        self._word_list = ['AB', 'BA', 'DE', 'RQ', 'EI']
         root = tki.Tk()
         root.title('boggle')
         root.resizable(False, False)  # nobody can change the height and length
         self._main_window = root
         self._text = ''
+        self._latter_location = None
+        self._display_label = tki.Label(self._main_window, font=("Courier", 30),
+                                        bg=REGULAR_COLOR, width=10, relief="ridge")
+        self._display_label.pack(side=tki.TOP, fill=tki.BOTH)
         self._outer_frame = tki.Frame(root, bg=REGULAR_COLOR,
                                       highlightbackground=REGULAR_COLOR,
                                       highlightthickness=5)
         self._outer_frame.pack(side=tki.TOP, fill=tki.BOTH, expand=True)
 
-        self._display_label = tki.Label(self._outer_frame, font=("Courier", 30),
-                                        bg=REGULAR_COLOR, width=23, relief="ridge")
-        self._display_label.pack(side=tki.TOP, fill=tki.BOTH)
+        # right frame
+        right_frame = tki.Frame(self._outer_frame)
+        # right_frame.pack(side=tki.RIGHT, fill=tki.BOTH, expand=True)
+        right_frame.grid(row=0, column=2)
+        print('now', self._taken_word_list)
 
-        self._lower_frame = tki.Frame(self._outer_frame)
-        self._lower_frame.pack(side=tki.TOP, fill=tki.BOTH, expand=True)
+        self.bottom_right = tki.Label(right_frame, text=self._taken_word_list, height=20, width=50, bg='green')
+        self.bottom_right.pack(side=tki.BOTTOM, fill=tki.Y, expand=True)
 
-        self._create_buttons_in_lower_frame()
+        self._middle_frame = tki.Frame(self._outer_frame)
+        # self._middle_frame.pack(side=tki.RIGHT, fill=tki.BOTH, expand=True)
+        self._middle_frame.grid(row=0, column=1)
+
+        self._create_buttons_in_middle_frame()
+
+        # left frame
+        left_frame = tki.Frame(self._outer_frame)
+        # left_frame.pack(side=tki.RIGHT, fill=tki.BOTH, expand=True)
+        left_frame.grid(row=0, column=0)
+
+        bottom_right = tki.Label(left_frame, text='Not word', height=20, width=50, bg='red')
+        bottom_right.pack(side=tki.BOTTOM, fill=tki.Y, expand=True)
+
         self._main_window.bind("<Key>", self._key_pressed)
+
+    def latter_location_getter(self):
+        return self._latter_location
 
     def run(self) -> None:
         self._main_window.mainloop()
@@ -52,6 +74,7 @@ class BoggleGUI:
         if self._display_label["text"] in self._word_list:
             self._taken_word_list.append(self._display_label['text'])
             self._display_label['text'] = ''
+            self.bottom_right["text"] = str(self._taken_word_list)
             print(self._taken_word_list)
 
     def set_button_commend(self, button_name: str, cmd) -> None:
@@ -67,20 +90,20 @@ class BoggleGUI:
                 L.append(col)
         return L
 
-    def _create_buttons_in_lower_frame(self) -> None:
+    def _create_buttons_in_middle_frame(self) -> None:
 
         for i in range(4):
-            tki.Grid.columnconfigure(self._lower_frame, i, weight=1)  # type: ignore
+            tki.Grid.columnconfigure(self._middle_frame, i, weight=1)  # type: ignore
 
         for i in range(4):
-            tki.Grid.rowconfigure(self._lower_frame, i, weight=1)  # type: ignore
+            tki.Grid.rowconfigure(self._middle_frame, i, weight=1)  # type: ignore
 
         board_list = self._board_list()
         self._make_button(board_list[0], 0, 0, self.set_display_by_click)
         self._make_button(board_list[1], 0, 1, self.set_display_by_click)
         self._make_button(board_list[2], 0, 2, self.set_display_by_click)
-        self._make_button(board_list[3], 0, 3,self.set_display_by_click)
-        self._make_button(board_list[4], 1, 0,self.set_display_by_click)
+        self._make_button(board_list[3], 0, 3, self.set_display_by_click)
+        self._make_button(board_list[4], 1, 0, self.set_display_by_click)
         self._make_button(board_list[5], 1, 1, self.set_display_by_click)
         self._make_button(board_list[6], 1, 2, self.set_display_by_click)
         self._make_button(board_list[7], 1, 3, self.set_display_by_click)
@@ -90,12 +113,24 @@ class BoggleGUI:
         self._make_button(board_list[11], 2, 3, self.set_display_by_click)
         self._make_button(board_list[12], 3, 0, self.set_display_by_click)
         self._make_button(board_list[11], 3, 1, self.set_display_by_click)
-        self._make_button(board_list[13], 3, 2,self.set_display_by_click)
+        self._make_button(board_list[13], 3, 2, self.set_display_by_click)
         self._make_button(board_list[14], 3, 3, self.set_display_by_click)
+
+    # def _create_buttons_in_right_frame(self) -> None:
+    #     for i in range(4):
+    #         tki.Grid.columnconfigure(self._middle_frame, i, weight=1)  # type: ignore
+    #
+    #     for i in range(4):
+    #         tki.Grid.rowconfigure(self._middle_frame, i, weight=1)  # type: ignore
+    #
+    #     board_list = self._board_list()
+    #     button = tki.Button(self._right_frame, text='button_char', command=None, **BUTTON_STYLE)
+    #     button.grid(row=0, column=0, rowspan=1, columnspan=1, sticky=tki.NSEW)
+    #     self._buttons['button_char'] = button
 
     def _make_button(self, button_char: str, row: int, col: int, command=None,
                      rowspan: int = 1, columnspan: int = 1):
-        button = tki.Button(self._lower_frame, text=button_char, command=command, **BUTTON_STYLE)
+        button = tki.Button(self._middle_frame, text=button_char, command=command, **BUTTON_STYLE)
         button.grid(row=row, column=col, rowspan=rowspan, columnspan=columnspan, sticky=tki.NSEW)
         self._buttons[button_char] = button
 
