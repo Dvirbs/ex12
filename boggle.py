@@ -18,11 +18,13 @@ class BoggleGUI:
     _buttons: Dict[str, tki.Button] = {}
 
     def __init__(self) -> None:
+        self._taken_word_list = []
+        self._word_list = ['AB', 'BA', 'DE', 'RQ','EI']
         root = tki.Tk()
         root.title('boggle')
         root.resizable(False, False)  # nobody can change the height and length
         self._main_window = root
-
+        self._text = ''
         self._outer_frame = tki.Frame(root, bg=REGULAR_COLOR,
                                       highlightbackground=REGULAR_COLOR,
                                       highlightthickness=5)
@@ -44,11 +46,19 @@ class BoggleGUI:
     def set_display(self, display_text: str) -> None:
         self._display_label["text"] = display_text
 
+    def set_display_by_click(self) -> None:
+        self._display_label["text"] += self._text
+        print(self._display_label["text"])
+        if self._display_label["text"] in self._word_list:
+            self._taken_word_list.append(self._display_label['text'])
+            self._display_label['text'] = ''
+            print(self._taken_word_list)
+
     def set_button_commend(self, button_name: str, cmd) -> None:
-        pass
+        self._buttons[button_name].configure(command=cmd)
 
     def get_button_chars(self) -> List[str]:
-        pass
+        return list(self._buttons.keys())
 
     def _board_list(self):
         L = []
@@ -66,31 +76,32 @@ class BoggleGUI:
             tki.Grid.rowconfigure(self._lower_frame, i, weight=1)  # type: ignore
 
         board_list = self._board_list()
-        self._make_button(board_list[0], 0, 0)
-        self._make_button(board_list[1], 0, 1)
-        self._make_button(board_list[2], 0, 2)
-        self._make_button(board_list[3], 0, 3)
-        self._make_button(board_list[4], 1, 0)
-        self._make_button(board_list[5], 1, 1)
-        self._make_button(board_list[6], 1, 2)
-        self._make_button(board_list[7], 1, 3)
-        self._make_button(board_list[8], 2, 0)
-        self._make_button(board_list[9], 2, 1)
-        self._make_button(board_list[10], 2, 2)
-        self._make_button(board_list[11], 2, 3)
-        self._make_button(board_list[12], 3, 0)
-        self._make_button(board_list[11], 3, 1)
-        self._make_button(board_list[13], 3, 2)
-        self._make_button(board_list[14], 3, 3)
+        self._make_button(board_list[0], 0, 0, self.set_display_by_click)
+        self._make_button(board_list[1], 0, 1, self.set_display_by_click)
+        self._make_button(board_list[2], 0, 2, self.set_display_by_click)
+        self._make_button(board_list[3], 0, 3,self.set_display_by_click)
+        self._make_button(board_list[4], 1, 0,self.set_display_by_click)
+        self._make_button(board_list[5], 1, 1, self.set_display_by_click)
+        self._make_button(board_list[6], 1, 2, self.set_display_by_click)
+        self._make_button(board_list[7], 1, 3, self.set_display_by_click)
+        self._make_button(board_list[8], 2, 0, self.set_display_by_click)
+        self._make_button(board_list[9], 2, 1, self.set_display_by_click)
+        self._make_button(board_list[10], 2, 2, self.set_display_by_click)
+        self._make_button(board_list[11], 2, 3, self.set_display_by_click)
+        self._make_button(board_list[12], 3, 0, self.set_display_by_click)
+        self._make_button(board_list[11], 3, 1, self.set_display_by_click)
+        self._make_button(board_list[13], 3, 2,self.set_display_by_click)
+        self._make_button(board_list[14], 3, 3, self.set_display_by_click)
 
-    def _make_button(self, button_char: str, row: int, col: int,
+    def _make_button(self, button_char: str, row: int, col: int, command=None,
                      rowspan: int = 1, columnspan: int = 1):
-        button = tki.Button(self._lower_frame, text=button_char, **BUTTON_STYLE)
+        button = tki.Button(self._lower_frame, text=button_char, command=command, **BUTTON_STYLE)
         button.grid(row=row, column=col, rowspan=rowspan, columnspan=columnspan, sticky=tki.NSEW)
         self._buttons[button_char] = button
 
         def _on_enter(event: Any) -> None:
             button['background'] = BUTTON_HOVER_COLOR
+            self._text = button['text']
 
         def _on_leave(event: Any) -> None:
             button['background'] = REGULAR_COLOR
@@ -116,5 +127,5 @@ class BoggleGUI:
 
 if __name__ == "__main__":
     cg = BoggleGUI()
-    cg.set_display("TEST MODE")
+    cg.set_display("")
     cg.run()
