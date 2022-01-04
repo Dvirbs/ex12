@@ -59,7 +59,7 @@ class BoggleGUI:
 
         self._main_window.bind("<Key>", self._key_pressed)
 
-    def latter_location_getter(self):
+    def get_latter_location(self):
         return self._latter_location
 
     def run(self) -> None:
