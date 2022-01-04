@@ -18,7 +18,9 @@ class BoggleGUI:
     _buttons: Dict[str, tki.Button] = {}
 
     def __init__(self) -> None:
+        self._click_add_word = None
         self._taken_word_list = []
+        self._wrong_word_list = []
         self._word_list = ['AB', 'BA', 'DE', 'RQ', 'EI']
         root = tki.Tk()
         root.title('boggle')
@@ -59,6 +61,18 @@ class BoggleGUI:
 
         self._main_window.bind("<Key>", self._key_pressed)
 
+    def set_taken_word_list(self, word: str) -> None:
+        self._taken_word_list.append(word)
+
+    def set_wrong_word_list(self, word: str) -> None:
+        self._wrong_word_list.append(word)
+
+    def add_word_clicked(self) -> bool:
+        return self._click_add_word
+
+    def set_flag_add_word(self) -> None:
+        self._click_add_word = False
+
     def get_latter_location(self):
         return self._latter_location
 
@@ -68,6 +82,13 @@ class BoggleGUI:
     def set_display(self, display_text: str) -> None:
         self._display_label["text"] = display_text
 
+    def set_text(self, latter):
+        """
+
+        :param latter: can be empty string or latter
+        :return:
+        """
+        self._text = latter
     def set_display_by_click(self) -> None:
         self._display_label["text"] += self._text
         print(self._display_label["text"])
@@ -116,18 +137,6 @@ class BoggleGUI:
         self._make_button(board_list[13], 3, 2, self.set_display_by_click)
         self._make_button(board_list[14], 3, 3, self.set_display_by_click)
 
-    # def _create_buttons_in_right_frame(self) -> None:
-    #     for i in range(4):
-    #         tki.Grid.columnconfigure(self._middle_frame, i, weight=1)  # type: ignore
-    #
-    #     for i in range(4):
-    #         tki.Grid.rowconfigure(self._middle_frame, i, weight=1)  # type: ignore
-    #
-    #     board_list = self._board_list()
-    #     button = tki.Button(self._right_frame, text='button_char', command=None, **BUTTON_STYLE)
-    #     button.grid(row=0, column=0, rowspan=1, columnspan=1, sticky=tki.NSEW)
-    #     self._buttons['button_char'] = button
-
     def _make_button(self, button_char: str, row: int, col: int, command=None,
                      rowspan: int = 1, columnspan: int = 1):
         button = tki.Button(self._middle_frame, text=button_char, command=command, **BUTTON_STYLE)
@@ -136,7 +145,7 @@ class BoggleGUI:
 
         def _on_enter(event: Any) -> None:
             button['background'] = BUTTON_HOVER_COLOR
-            self._text = button['text']
+            self._text = button['text']         #TODO after making the call of set_text we can cancel this line
 
         def _on_leave(event: Any) -> None:
             button['background'] = REGULAR_COLOR
