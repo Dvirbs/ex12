@@ -61,6 +61,9 @@ class BoggleGUI:
 
         self._main_window.bind("<Key>", self._key_pressed)
 
+    def get_root(self):
+        return self._main_window
+
     def set_taken_word_list(self, word: str) -> None:
         self._taken_word_list.append(word)
 
@@ -167,6 +170,8 @@ class BoggleGUI:
         and then return to normal"""
         button = self._buttons[button_char]
         button["bg"] = BUTTON_ACTIVE_COLOR
+
+        print(self._latter_location)
 
 
 if __name__ == "__main__":
