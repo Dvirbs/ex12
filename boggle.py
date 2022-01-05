@@ -1,6 +1,7 @@
 import tkinter as tki
 from typing import Callable, Dict, List, Any
 import boggle_board_randomizer
+from time import time
 
 BUTTON_HOVER_COLOR = 'gray'
 REGULAR_COLOR = 'lightgray'
@@ -59,7 +60,28 @@ class BoggleGUI:
         bottom_right = tki.Label(left_frame, text='Not word', height=20, width=50, bg='red')
         bottom_right.pack(side=tki.BOTTOM, fill=tki.Y, expand=True)
 
+        # Timer
+
+        button = tki.Button(self._main_window, text=self.timer)
+        button.pack(side=tki.TOP, pady=5)
+        print('Running...')
+        # Calculating starting time
+        # in after method 5000 milliseconds
+        # is passed i.e after 5 seconds
+        # main window i.e root window will
+        # get destroyed
+        start = time()
+        end = time()
+        print('Destroyed after % d seconds' % (end - start))
+        self._main_window.after(500000, self._main_window.destroy)
+
+
         self._main_window.bind("<Key>", self._key_pressed)
+
+    def timer(self):
+        pass
+
+
 
     def get_root(self):
         return self._main_window
@@ -178,3 +200,4 @@ if __name__ == "__main__":
     cg = BoggleGUI()
     cg.set_display("")
     cg.run()
+
