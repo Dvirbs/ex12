@@ -1,6 +1,8 @@
+import tkinter
 import tkinter as tki
 from typing import Callable, Dict, List, Any
 import boggle_board_randomizer
+import time
 
 BUTTON_HOVER_COLOR = 'gray'
 REGULAR_COLOR = 'lightgray'
@@ -59,7 +61,40 @@ class BoggleGUI:
         bottom_right = tki.Label(left_frame, text='Not word', height=20, width=50, bg='red')
         bottom_right.pack(side=tki.BOTTOM, fill=tki.Y, expand=True)
 
+        # Create Entry Widgets for HH MM SS
+        self.sec = tki.StringVar()
+        tki.Entry(self._main_window, textvariable=self.sec, width=2, font='Helvetica 14').place(x=220, y=120)
+        self.sec.set('00')
+        self.mins = tki.StringVar()
+        tki.Entry(self._main_window, textvariable=self.mins, width=2, font='Helvetica14').place(x=180, y=120)
+        self.mins.set('00')
+        self.hrs = tki.StringVar()
+        tki.Entry(self._main_window, textvariable=self.hrs, width=2, font='Helvetica 14').place(x=142, y=120)
+        self.hrs.set('00')
+        tki.Label(self._main_window, font=('Helvetica bold', 22), text='Set the Timer', bg='burlywood1').place(x=105,
+                                                                                                               y=70)
+        tki.Button(self._main_window, text='START', bd='2', bg='IndianRed1', font=('Helveticabold', 10),
+                   command=self.countdowntimer).place(x=167, y=165)
         self._main_window.bind("<Key>", self._key_pressed)
+
+    def countdowntimer(self):
+        times = int(self.hrs.get()) * 3600 + int(self.mins.get()) * 60 + int(self.sec.get())
+        while times > -1:
+            minute, second = (times // 60, times % 60)
+            hour = 0
+            if minute > 60:
+                hour, minute = (minute // 60, minute % 60)
+            self.sec.set(second)
+            self.mins.set(minute)
+            self.hrs.set(hour)
+            # Update the time
+            self._main_window.update()
+            time.sleep(1)
+            if (times == 0):
+                self.sec.set('00')
+                self.mins.set('00')
+                self.hrs.set('00')
+            times -= 1
 
     def get_root(self):
         return self._main_window
@@ -92,6 +127,7 @@ class BoggleGUI:
         :return:
         """
         self._text = latter
+
     def set_display_by_click(self) -> None:
         self._display_label["text"] += self._text
         print(self._display_label["text"])
@@ -148,7 +184,7 @@ class BoggleGUI:
 
         def _on_enter(event: Any) -> None:
             button['background'] = BUTTON_HOVER_COLOR
-            self._text = button['text']         #TODO after making the call of set_text we can cancel this line
+            self._text = button['text']  # TODO after making the call of set_text we can cancel this line
 
         def _on_leave(event: Any) -> None:
             button['background'] = REGULAR_COLOR
