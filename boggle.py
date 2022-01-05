@@ -73,7 +73,7 @@ class BoggleGUI:
         start = time()
         end = time()
         print('Destroyed after % d seconds' % (end - start))
-        self._main_window.after(500000, self._main_window.destroy)
+        self._main_window.after(180000, self._main_window.destroy)
 
 
         self._main_window.bind("<Key>", self._key_pressed)
