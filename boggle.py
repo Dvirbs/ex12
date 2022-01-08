@@ -3,6 +3,7 @@ from typing import Callable, Dict, List, Any
 import boggle_board_randomizer
 from time import time
 
+
 BUTTON_HOVER_COLOR = 'gray'
 REGULAR_COLOR = 'lightgray'
 BUTTON_ACTIVE_COLOR = 'slateblue'
@@ -12,16 +13,18 @@ BUTTON_STYLE = {"font": ("Courier", 30),
                 "relief": tki.RAISED,
                 "bg": REGULAR_COLOR,
                 "activebackground": BUTTON_ACTIVE_COLOR}
-board = boggle_board_randomizer.randomize_board()
+BOARD = boggle_board_randomizer.randomize_board()
 
 
 class BoggleGUI:
     _buttons: Dict[str, tki.Button] = {}
 
-    def __init__(self) -> None:
+    def __init__(self, board) -> None:
+        self._board = board
         self._click_add_word = None
         self._taken_word_list = []
         self._wrong_word_list = []
+        self._word_clicked = False
         self._word_list = ['AB', 'BA', 'DE', 'RQ', 'EI']
         root = tki.Tk()
         root.title('boggle')
@@ -43,8 +46,8 @@ class BoggleGUI:
         right_frame.grid(row=0, column=2)
         print('now', self._taken_word_list)
 
-        self.bottom_right = tki.Label(right_frame, text=self._taken_word_list, height=20, width=50, bg='green')
-        self.bottom_right.pack(side=tki.BOTTOM, fill=tki.Y, expand=True)
+        self._bottom_right = tki.Label(right_frame, text=self._taken_word_list, height=20, width=50, bg='green')
+        self._bottom_right.pack(side=tki.BOTTOM, fill=tki.Y, expand=True)
 
         self._middle_frame = tki.Frame(self._outer_frame)
         # self._middle_frame.pack(side=tki.RIGHT, fill=tki.BOTH, expand=True)
@@ -57,16 +60,14 @@ class BoggleGUI:
         # left_frame.pack(side=tki.RIGHT, fill=tki.BOTH, expand=True)
         left_frame.grid(row=0, column=0)
 
-        bottom_right = tki.Label(left_frame, text='Not word', height=20, width=50, bg='red')
-        bottom_right.pack(side=tki.BOTTOM, fill=tki.Y, expand=True)
-
+        self._bottom_left = tki.Label(left_frame, text=self._wrong_word_list, height=20, width=50, bg='red')
+        self._bottom_left.pack(side=tki.BOTTOM, fill=tki.Y, expand=True)
         # Timer
-
         button = tki.Button(self._main_window, text=self.timer)
         button.pack(side=tki.TOP, pady=5)
         print('Running...')
         # Calculating starting time
-        # in after method 5000 milliseconds
+        # in after method 180000 milliseconds
         # is passed i.e after 5 seconds
         # main window i.e root window will
         # get destroyed
@@ -75,25 +76,39 @@ class BoggleGUI:
         print('Destroyed after % d seconds' % (end - start))
         self._main_window.after(180000, self._main_window.destroy)
 
+        # add word button
+        # לשחרר את כל המקשים הלחוצים (ראשית צריך לדאוג שהם ישארו לחוצים)
+        button = tki.Button(self._main_window, text='ADD WORD', command=self.add_word_clicked)
+        self._buttons['ADD_WORD'] = button
+        button.pack(side=tki.TOP, pady=5)
 
         self._main_window.bind("<Key>", self._key_pressed)
 
     def timer(self):
         pass
 
-
-
     def get_root(self):
         return self._main_window
 
     def set_taken_word_list(self, word: str) -> None:
         self._taken_word_list.append(word)
+        self._bottom_right['text'] = self._taken_word_list
+
 
     def set_wrong_word_list(self, word: str) -> None:
         self._wrong_word_list.append(word)
+        self._bottom_left['text'] = self._wrong_word_list
 
-    def add_word_clicked(self) -> bool:
-        return self._click_add_word
+
+    def add_word_clicked(self):
+        print('Noa clicked the bottom')
+        self._word_clicked = True
+
+    def get_word_clicked(self):
+        return self._word_clicked
+
+    def set_word_clicked(self):
+        self._word_clicked = False
 
     def set_flag_add_word(self) -> None:
         self._click_add_word = False
@@ -114,13 +129,17 @@ class BoggleGUI:
         :return:
         """
         self._text = latter
+
+    def set_empty_display_label(self) -> None:
+        self._display_label['text'] = ''
+
     def set_display_by_click(self) -> None:
         self._display_label["text"] += self._text
         print(self._display_label["text"])
         if self._display_label["text"] in self._word_list:
             self._taken_word_list.append(self._display_label['text'])
             self._display_label['text'] = ''
-            self.bottom_right["text"] = str(self._taken_word_list)
+            self._bottom_right["text"] = str(self._taken_word_list)
             print(self._taken_word_list)
 
     def set_button_commend(self, button_name: str, cmd) -> None:
@@ -131,10 +150,14 @@ class BoggleGUI:
 
     def _board_list(self):
         L = []
-        for row in board:
+        for row in self._board:
             for col in row:
                 L.append(col)
         return L
+
+    def get_button_location(self, button_name):
+        info = self._buttons[button_name].grid_info()
+        return info["row"], info["column"]
 
     def _create_buttons_in_middle_frame(self) -> None:
 
@@ -145,22 +168,23 @@ class BoggleGUI:
             tki.Grid.rowconfigure(self._middle_frame, i, weight=1)  # type: ignore
 
         board_list = self._board_list()
-        self._make_button(board_list[0], 0, 0, self.set_display_by_click)
-        self._make_button(board_list[1], 0, 1, self.set_display_by_click)
-        self._make_button(board_list[2], 0, 2, self.set_display_by_click)
-        self._make_button(board_list[3], 0, 3, self.set_display_by_click)
-        self._make_button(board_list[4], 1, 0, self.set_display_by_click)
-        self._make_button(board_list[5], 1, 1, self.set_display_by_click)
-        self._make_button(board_list[6], 1, 2, self.set_display_by_click)
-        self._make_button(board_list[7], 1, 3, self.set_display_by_click)
-        self._make_button(board_list[8], 2, 0, self.set_display_by_click)
-        self._make_button(board_list[9], 2, 1, self.set_display_by_click)
-        self._make_button(board_list[10], 2, 2, self.set_display_by_click)
-        self._make_button(board_list[11], 2, 3, self.set_display_by_click)
-        self._make_button(board_list[12], 3, 0, self.set_display_by_click)
-        self._make_button(board_list[11], 3, 1, self.set_display_by_click)
-        self._make_button(board_list[13], 3, 2, self.set_display_by_click)
-        self._make_button(board_list[14], 3, 3, self.set_display_by_click)
+        self._make_button(board_list[0], 0, 0)
+        self._make_button(board_list[1], 0, 1)
+        self._make_button(board_list[2], 0, 2)
+        self._make_button(board_list[3], 0, 3)
+        self._make_button(board_list[4], 1, 0)
+        self._make_button(board_list[5], 1, 1)
+        self._make_button(board_list[6], 1, 2)
+        self._make_button(board_list[7], 1, 3)
+        self._make_button(board_list[8], 2, 0)
+        self._make_button(board_list[9], 2, 1)
+        self._make_button(board_list[10], 2, 2)
+        self._make_button(board_list[11], 2, 3)
+        self._make_button(board_list[12], 3, 0)
+        self._make_button(board_list[11], 3, 1)
+        self._make_button(board_list[13], 3, 2)
+        self._make_button(board_list[14], 3, 3)
+
 
     def _make_button(self, button_char: str, row: int, col: int, command=None,
                      rowspan: int = 1, columnspan: int = 1):
@@ -170,7 +194,7 @@ class BoggleGUI:
 
         def _on_enter(event: Any) -> None:
             button['background'] = BUTTON_HOVER_COLOR
-            self._text = button['text']         #TODO after making the call of set_text we can cancel this line
+            self._text = button['text']  # TODO after making the call of set_text we can cancel this line
 
         def _on_leave(event: Any) -> None:
             button['background'] = REGULAR_COLOR
@@ -179,13 +203,14 @@ class BoggleGUI:
         button.bind("<Leave>", _on_leave)
         return button
 
-    def _key_pressed(self, event: Any) -> None:
+    def _key_pressed(self, event: Any) -> None:  # TODO check if we need this func
         """the callback method for when a key is pressed.
         It'll simulate a button press on the right button."""
         if event.char in self._buttons:
             self._simulate_button_press(event.char)
-        elif event.keysym == "Return":
-            self._simulate_button_press("=")
+            return event.char
+        # elif event.keysym == "Return":
+        # self._simulate_button_press("=")
 
     def _simulate_button_press(self, button_char: str) -> None:
         """make a button light up as if it is pressed,
@@ -194,10 +219,3 @@ class BoggleGUI:
         button["bg"] = BUTTON_ACTIVE_COLOR
 
         print(self._latter_location)
-
-
-if __name__ == "__main__":
-    cg = BoggleGUI()
-    cg.set_display("")
-    cg.run()
-
