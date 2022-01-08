@@ -3,7 +3,6 @@ from typing import Callable, Dict, List, Any
 import boggle_board_randomizer
 from time import time
 
-
 BUTTON_HOVER_COLOR = 'gray'
 REGULAR_COLOR = 'lightgray'
 BUTTON_ACTIVE_COLOR = 'slateblue'
@@ -84,6 +83,9 @@ class BoggleGUI:
 
         self._main_window.bind("<Key>", self._key_pressed)
 
+    def get_text(self, button):
+        return button['text']
+
     def timer(self):
         pass
 
@@ -94,11 +96,9 @@ class BoggleGUI:
         self._taken_word_list.append(word)
         self._bottom_right['text'] = self._taken_word_list
 
-
     def set_wrong_word_list(self, word: str) -> None:
         self._wrong_word_list.append(word)
         self._bottom_left['text'] = self._wrong_word_list
-
 
     def add_word_clicked(self):
         print('Noa clicked the bottom')
@@ -142,11 +142,11 @@ class BoggleGUI:
             self._bottom_right["text"] = str(self._taken_word_list)
             print(self._taken_word_list)
 
-    def set_button_commend(self, button_name: str, cmd) -> None:
-        self._buttons[button_name].configure(command=cmd)
+    def set_button_commend(self, button, cmd) -> None:
+        button.configure(command=cmd)
 
-    def get_button_chars(self) -> List[str]:
-        return list(self._buttons.keys())
+    def get_button_chars(self):
+        return list(self._buttons.values())
 
     def _board_list(self):
         L = []
@@ -155,8 +155,8 @@ class BoggleGUI:
                 L.append(col)
         return L
 
-    def get_button_location(self, button_name):
-        info = self._buttons[button_name].grid_info()
+    def get_button_location(self, button):
+        info = button.grid_info()
         return info["row"], info["column"]
 
     def _create_buttons_in_middle_frame(self) -> None:
@@ -184,7 +184,6 @@ class BoggleGUI:
         self._make_button(board_list[11], 3, 1)
         self._make_button(board_list[13], 3, 2)
         self._make_button(board_list[14], 3, 3)
-
 
     def _make_button(self, button_char: str, row: int, col: int, command=None,
                      rowspan: int = 1, columnspan: int = 1):

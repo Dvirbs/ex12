@@ -9,12 +9,13 @@ class BoggleControl:
         self._game = Game(self.board)
         self.gui = BoggleGUI(self.board)
 
-        for button_text in self.gui.get_button_chars():
-            self.gui.set_button_commend(button_text, self.create_button_action(button_text))
+        for button in self.gui.get_button_chars():
+            self.gui.set_button_commend(button, self.create_button_action(button))
         self.gui.set_display('')
 
-    def create_button_action(self, button_str):
-        if button_str == 'ADD_WORD':
+    def create_button_action(self, button):
+        button_text = self.gui.get_text(button)
+        if button_text == 'ADD_WORD':
             def add_word_func():
                 correct_word, wrong_word = self._game.add_word()
                 if correct_word:
@@ -25,7 +26,7 @@ class BoggleControl:
             return add_word_func
 
         def letter_func():
-            cell = self.gui.get_button_location(button_str)
+            cell = self.gui.get_button_location(button)
             display = self._game.bottom_clicked(cell)
             self.gui.set_display(display)
         return letter_func
